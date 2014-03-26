@@ -118,6 +118,9 @@ class ExecutionEngine(object):
                         spider=spider)
             else:
                 self.crawl(request, spider)
+        else:
+            slot.nextcall.schedule(5)
+            log.msg("next schedule 5s later [reason=backout]")
 
         if self.spider_is_idle(spider) and slot.close_if_idle:
             self._spider_idle(spider)
