@@ -110,7 +110,9 @@ class ExecutionEngine(object):
             try:
                 request = next(slot.start_requests)
             except StopIteration:
-                slot.start_requests = None
+                slot.start_requests = iter(slot.start_requests())
+                slot.nextcall.schedule(5)
+                log.msg("next schedule 5s later [reason=StopIterationcrawler]")
             except Exception as exc:
                 log.err(None, 'Obtaining request from start requests', \
                         spider=spider)
@@ -213,7 +215,7 @@ class ExecutionEngine(object):
         return dwld
 
     @defer.inlineCallbacks
-    def open_spider(self, spider, start_requests=(), close_if_idle=True):
+    def open_spider(self, spider, start_requests=(), close_if_idle=False):
         assert self.has_capacity(), "No free spider slot when opening %r" % \
             spider.name
         log.msg("Spider opened", spider=spider)
